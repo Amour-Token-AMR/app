@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Corneet Wallet - Express Love on the Blockchain</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.0.6/tsparticles.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+  <div id="particles-js"></div>
+  
+  <div class="content">
+    <section class="hero">
+      <h1>Express Love on the Blockchain</h1>
+      <p>Turn Your Emotions Into Digital Treasures</p>
+      <input type="text" class="message-input" placeholder="Write your crypto-love message here..." maxlength="280">
+      <button class="submit-btn">Submit Message 💎</button>
+    </section>
+
+    <section class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🤖💘</div>
+        <h3>AI-Powered</h3>
+        <p>Our AI transforms your emotions into unique blockchain poetry</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💎💰</div>
+        <h3>Earn Tokens</h3>
+        <p>Get $AMR tokens for every heartfelt message created</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌟🔥</div>
+        <h3>Community Voting</h3>
+        <p>Vote for the most romantic messages to earn rewards</p>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="messageCount">1,234</div>
+          <div class="stat-label">Messages Created</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="tokenValue">$2.45</div>
+          <div class="stat-label">$AMR Price</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="totalLocked">$1.2M</div>
+          <div class="stat-label">Total Love Locked</div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="footer-content">
+        <h3>Next Community Vote in</h3>
+        <div id="countdown">23:45:12</div>
+        <div class="social-links">
+          <a href="#" class="social-link">Twitter</a>
+          <a href="#" class="social-link">Discord</a>
+          <a href="#" class="social-link">Telegram</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Particles configuration
+    tsParticles.load("particles-js", {
+      particles: {
+        number: {
+          value: 80,
+          density: {
+            enable: true,
+            value_area: 800
+          }
+        },
+        color: {
+          value: "#ff1b6b"
+        },
+        shape: {
+          type: "circle"
+        },
+        opacity: {
+          value: 0.5,
+          random: false
+        },
+        size: {
+          value: 3,
+          random: true
+        },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#ff1b6b",
+          opacity: 0.4,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 2,
+          direction: "none",
+          random: false,
+          straight: false,
+          out_mode: "out",
+          bounce: false
+        }
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: {
+          onhover: {
+            enable: true,
+            mode: "repulse"
+          },
+          onclick: {
+            enable: true,
+            mode: "push"
+          },
+          resize: true
+        }
+      },
+      retina_detect: true
+    });
+
+    // Animations
+    gsap.from(".hero h1", {
+      duration: 1,
+      y: 50,
+      opacity: 0,
+      ease: "power3.out"
+    });
+
+    gsap.from(".hero p", {
+      duration: 1,
+      y: 30,
+      opacity: 0,
+      delay: 0.3,
+      ease: "power3.out"
+    });
+
+    gsap.from(".feature-card", {
+      duration: 0.8,
+      y: 50,
+      opacity: 0,
+      stagger: 0.2,
+      scrollTrigger: {
+        trigger: ".features",
+        start: "top center"
+      }
+    });
+  </script>
+</body>
+</html>
