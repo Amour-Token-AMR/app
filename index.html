@@ -1,15 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" href="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xml%3Aspace%3D%22preserve%22%20viewBox%3D%220%200%20128%20128%22%3E%3Cpath%20d%3D%22M93.99%208.97c-21.91%200-29.96%2022.39-29.96%2022.39s-7.94-22.39-30-22.39c-16.58%200-35.48%2013.14-28.5%2043.01s58.56%2067.08%2058.56%2067.08%2051.39-37.21%2058.38-67.08c6.98-29.87-10.56-43.01-28.48-43.01%22%20style%3D%22fill%3A%23f44336%22%2F%3E%3Cpath%20d%3D%22M30.65%2011.2c17.2%200%2025.74%2018.49%2028.5%2025.98.39%201.07%201.88%201.1%202.33.06L64%2031.35C60.45%2020.01%2050.69%208.97%2034.03%208.97c-6.9%200-14.19%202.28-19.86%207.09%205.01-3.29%2010.88-4.86%2016.48-4.86M93.99%208.97c-5.29%200-10.11%201.15-13.87%203.47%202.64-1.02%205.91-1.24%209.15-1.24%2016.21%200%2030.72%2012.29%2024.17%2040.7-5.62%2024.39-38.46%2053.98-48.49%2065.27-.64.72-.86%201.88-.86%201.88s51.39-37.21%2058.38-67.08c6.98-29.86-10.53-43-28.48-43%22%20style%3D%22fill%3A%23c33%22%2F%3E%3Cpath%20d%3D%22M17.04%2024.82c3.75-4.68%2010.45-8.55%2016.13-4.09%203.07%202.41%201.73%207.35-1.02%209.43-4%203.04-7.48%204.87-9.92%209.63-1.46%202.86-2.34%205.99-2.79%209.18-.18%201.26-1.83%201.57-2.45.46-4.22-7.48-5.42-17.78.05-24.61M77.16%2034.66c-1.76%200-3-1.7-2.36-3.34%201.19-3.02%202.73-5.94%204.58-8.54%202.74-3.84%207.95-6.08%2011.25-3.75%203.38%202.38%202.94%207.14.57%209.44-5.09%204.93-11.51%206.19-14.04%206.19%22%20style%3D%22fill%3A%23ff8a80%22%2F%3E%3C%2Fsvg%3E">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Corneet Wallet - Express Love on the Blockchain</title>
+  <meta name="description" content="Transform your emotions into blockchain poetry with $AMR token. Write love messages, earn rewards, and join a community of romantic crypto enthusiasts. Start expressing love on Web3 today!">
+  <title>$AMR The AMOUR Token - Express Love on the Blockchain</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.0.6/tsparticles.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 </head>
 <body>
+  <nav class="navbar">
+    <div class="navbar-left">
+      <img src="https://avatars.githubusercontent.com/u/197024059?s=200&v=4" alt="Amour Token Logo" class="navbar-logo">
+      <span class="navbar-title">$AMR Amour App</span>
+    </div>
+    
+    <div class="navbar-center">
+      <div class="navbar-stat">
+        <span class="stat-value-small" id="navMessageCount">1,234</span>
+        <span class="stat-label-small">Messages</span>
+      </div>
+      <div class="navbar-stat">
+        <span class="stat-value-small" id="navTokenPrice">$2.45</span>
+        <span class="stat-label-small">$AMR Price</span>
+      </div>
+    </div>
+    
+    <div class="navbar-right">
+      <a href="#" class="nav-link">ICO</a>
+      <a href="https://github.com/Amour-Token-AMR/token/blob/main/whitepaper.md" class="nav-link">Whitepaper</a>
+      <button class="connect-wallet" id="walletBtn">Connect Wallet</button>
+    </div>
+  </nav>
+
   <div id="particles-js"></div>
   
   <div class="content">
@@ -18,6 +45,23 @@
       <p>Turn Your Emotions Into Digital Treasures</p>
       <input type="text" class="message-input" placeholder="Write your crypto-love message here..." maxlength="280">
       <button class="submit-btn">Submit Message 💎</button>
+    </section>
+
+    <section class="stats">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="messageCount">1,234</div>
+          <div class="stat-label">Messages Created</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="tokenValue">$2.45</div>
+          <div class="stat-label">$AMR Price</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="totalLocked">$1.2M</div>
+          <div class="stat-label">Total Love Locked</div>
+        </div>
+      </div>
     </section>
 
     <section class="features">
@@ -38,23 +82,6 @@
       </div>
     </section>
 
-    <section class="stats">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-value" id="messageCount">1,234</div>
-          <div class="stat-label">Messages Created</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value" id="tokenValue">$2.45</div>
-          <div class="stat-label">$AMR Price</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value" id="totalLocked">$1.2M</div>
-          <div class="stat-label">Total Love Locked</div>
-        </div>
-      </div>
-    </section>
-
     <footer>
       <div class="footer-content">
         <h3>Next Community Vote in</h3>
@@ -69,6 +96,9 @@
   </div>
 
   <script>
+    // Register ScrollTrigger plugin
+    gsap.registerPlugin(ScrollTrigger);
+    
     // Particles configuration
     tsParticles.load("particles-js", {
       particles: {
@@ -83,7 +113,7 @@
           value: "#ff1b6b"
         },
         shape: {
-          type: "circle"
+          type: "heart"
         },
         opacity: {
           value: 0.5,
@@ -153,6 +183,39 @@
         start: "top center"
       }
     });
+
+    // Wallet Connection Handling
+    const walletBtn = document.getElementById('walletBtn');
+    let isConnected = false;
+
+    walletBtn.addEventListener('click', async () => {
+      if (!isConnected) {
+        // Check if MetaMask is installed
+        if (typeof window.ethereum !== 'undefined') {
+          try {
+            // Request account access
+            await window.ethereum.request({ method: 'eth_requestAccounts' });
+            isConnected = true;
+            walletBtn.textContent = '0x....' + window.ethereum.selectedAddress.slice(-4);
+            walletBtn.classList.add('connected');
+          } catch (error) {
+            console.error('User denied account access');
+          }
+        } else {
+          // If MetaMask is not installed, open MetaMask website
+          window.open('https://metamask.io/download.html', '_blank');
+        }
+      }
+    });
+
+    // Sync navbar stats with main stats
+    const syncStats = () => {
+      document.getElementById('navMessageCount').textContent = document.getElementById('messageCount').textContent;
+      document.getElementById('navTokenPrice').textContent = document.getElementById('tokenValue').textContent;
+    };
+    
+    // Initial sync
+    syncStats();
   </script>
 </body>
 </html>
