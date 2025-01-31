@@ -19,6 +19,135 @@ body {
   color: #fff;
   min-height: 100vh;
   overflow-x: hidden;
+  padding-top: 80px; /* Add space for fixed navbar */
+}
+
+/* Navbar Styles */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: rgba(10, 10, 15, 0.98);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  z-index: 1000;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navbar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.navbar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #fff, var(--metallic-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-center {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.8rem 2rem;
+  border-radius: 50px;
+  border: 1px solid var(--glass-border);
+}
+
+.navbar-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+}
+
+.stat-value-small {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--metallic-gold);
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.stat-label-small {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.2rem;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
+
+.nav-link:hover {
+  color: var(--metallic-gold);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.connect-wallet {
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
+  border: none;
+  background: linear-gradient(45deg, var(--neon-pink), var(--electric-purple));
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.connect-wallet:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(255, 27, 107, 0.3);
+}
+
+.connected {
+  background: linear-gradient(45deg, var(--metallic-gold), var(--neon-pink));
+}
+
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 0 1rem;
+  }
+  
+  .navbar-center {
+    display: none;
+  }
+  
+  .navbar-right {
+    gap: 1rem;
+  }
+  
+  .nav-link {
+    font-size: 0.9rem;
+  }
 }
 
 #particles-js {
@@ -216,18 +345,4 @@ footer {
 .social-link:hover {
   color: var(--neon-pink);
   transform: translateY(-3px);
-}
-
-@media (max-width: 768px) {
-  .hero h1 {
-    font-size: 3rem;
-  }
-  
-  .hero p {
-    font-size: 1.2rem;
-  }
-  
-  .features {
-    grid-template-columns: 1fr;
-  }
 }
