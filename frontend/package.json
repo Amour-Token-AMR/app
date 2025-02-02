@@ -1,19 +1,19 @@
 {
-  "name": "amr-app",
-  "version": "1.0.0",
-  "description": "$AMR The AMOUR Token Frontend",
-  "author": "@cubilizer",
-  "private": true,
-  "scripts": {
-    "dev": "nuxt",
-    "build": "nuxt build",
-    "start": "nuxt start"
-  },
-  "dependencies": {
-    "@nuxtjs/axios": "^5.13.6",
-    "nuxt": "^2.15.8",
-    "gsap": "^3.12.2",
-    "tsparticles": "^2.0.6",
-    "web3": "^1.10.0"
-  }
+	"name": "amr-app",
+	"version": "1.0.0",
+	"description": "$AMR The AMOUR Token Frontend",
+	"author": "@cubilizer",
+	"private": true,
+	"scripts": {
+		"dev": "nuxt",
+		"build": "nuxt build",
+		"start": "nuxt start"
+	},
+	"dependencies": {
+		"@nuxtjs/axios": "^5.13.6",
+		"nuxt": "^3.15.4",
+		"gsap": "^3.12.7",
+		"tsparticles": "^3.8.1",
+		"web3": "^4.16.0"
+	}
 }
