@@ -6,7 +6,6 @@ router = APIRouter()
 @router.get("/health", tags=["Health"])
 async def health_check():
     """
-    Endpoint de vérification de l'état du service.
-    Retourne 'ok' si l'API est opérationnelle.
+    Vérifie que l'API est opérationnelle.
     """
     return {"status": "ok"}

@@ -2,3 +2,4 @@ nodes_modules/
 venv/
 .env
 .DS_Store
+*.pem

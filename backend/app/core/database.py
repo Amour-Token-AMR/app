@@ -11,8 +11,7 @@ Base = declarative_base()
 
 def get_db():
     """
-    Fournit une session de base de données pour les endpoints.
-    À utiliser avec FastAPI via Depends().
+    Fournit une session de base de données pour les endpoints via Depends.
     """
     db = SessionLocal()
     try:

@@ -2,43 +2,52 @@ version: "3.9"
 
 services:
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: production
     container_name: amr_frontend
-    working_dir: /app
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    # Commande de production : build et démarrage du serveur Nuxt
-    command: sh -c "yarn install && yarn build && yarn start"
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-    depends_on:
-      - backend
+      - API_BASE_URL=http://backend:8000
     networks:
       - amr-network
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      target: production
     container_name: amr_api
-    working_dir: /app
-    volumes:
-      - ./backend:/app
-    # Commande de production sans hot-reload
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
-    ports:
-      - "8000:8000"
     environment:
-      - PYTHON_ENV=production
-      - DB_URI=postgresql://user:password@db:5432/amr_db
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - DB_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - REDIS_URI=redis://redis:6379/0
       - JWT_SECRET=${JWT_SECRET}
-    depends_on:
-      - db
-      - redis
+      - WEB_CONCURRENCY=4
+    ports:
+      - "8000:8000"
     networks:
       - amr-network
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   n8n:
     image: n8nio/n8n
@@ -62,7 +71,7 @@ services:
     networks:
       - amr-network
 
-  db:
+  ddb:
     image: postgres:14-alpine
     container_name: amr_db
     volumes:
@@ -71,18 +80,27 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    ports:
-      - "5432:5432"
     networks:
       - amr-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
     container_name: amr_redis
-    ports:
-      - "6379:6379"
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
     networks:
       - amr-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.7.0
@@ -110,7 +128,7 @@ services:
     working_dir: /app
     volumes:
       - ./ai-model:/app
-    #command: sh -c "pip install -r requirements.txt && python app.py"  
+    command: sh -c "pip install -r requirements.txt && python app.py"  
     ports:
       - "8500:8500"
     environment:
@@ -126,18 +144,29 @@ services:
     container_name: amr_nginx
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./ssl:/etc/nginx/ssl:ro
     ports:
       - "80:80"
       - "443:443"
+    networks:
+      - amr-network
     depends_on:
       - frontend
       - backend
-    networks:
-      - amr-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   amr-network:
     driver: bridge
+    attachable: true
 
 volumes:
   db-data:
+    driver: local
+  redis-data:
+    driver: local

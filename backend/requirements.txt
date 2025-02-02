@@ -1,0 +1,9 @@
+fastapi==0.103.0
+uvicorn==0.23.2
+sqlalchemy==1.4.51
+psycopg2-binary==2.9.9
+python-jose==3.3.0
+passlib[bcrypt]==1.7.4
+pydantic==1.10.13
+web3==6.5.0  # Check compatibility with your code
+gunicorn==21.2.0
