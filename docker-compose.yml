@@ -5,11 +5,16 @@ services:
       dockerfile: Dockerfile
       target: production
     container_name: amr_frontend
-    ports:
-      - "3000:3000"
+    #ports:
+    #  - "3000:3000"
     environment:
       - NODE_ENV=production
       - API_BASE_URL=http://backend:8000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`amr-token.example.com`)"
+      - "traefik.http.routers.frontend.entrypoints=web,websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
     networks:
       - amr-network
     depends_on:
@@ -34,8 +39,13 @@ services:
       - REDIS_URI=redis://redis:6379/0
       - JWT_SECRET=${JWT_SECRET}
       - WEB_CONCURRENCY=4
-    ports:
-      - "8000:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.amr-token.example.com`)"
+      - "traefik.http.routers.backend.entrypoints=web,websecure"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
+    #ports:
+    #  - "8000:8000"
     networks:
       - amr-network
     depends_on:
@@ -53,8 +63,8 @@ services:
     image: n8nio/n8n
     container_name: amr_n8n
     restart: always
-    ports:
-      - "5678:5678"
+    #ports:
+    #  - "5678:5678"
     env_file:
       - ./n8n/.env.n8n
     environment:
@@ -64,6 +74,11 @@ services:
       - DB_POSTGRESDB_DATABASE=amr_n8n
       - DB_POSTGRESDB_USER=${POSTGRES_USER}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.amr-token.example.com`)"
+      - "traefik.http.routers.n8n.entrypoints=web,websecure"
+      - "traefik.http.routers.n8n.tls.certresolver=myresolver"
     volumes:
       - ./n8n:/home/node/.n8n
     depends_on:
@@ -132,36 +147,57 @@ services:
     volumes:
       - ./ai-model:/app
     command: sh -c "pip install -r requirements.txt && python app.py"  
-    ports:
-      - "8500:8500"
+    #ports:
+    #  - "8500:8500"
     environment:
       # Dans le mode production, on suppose qu'Ollama est accessible via un service nommé "ollama"
       - OLLAMA_API_URL=http://ollama:11434/run
       - OLLAMA_MODEL=amour-model
       - MODEL_ENV=production
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ai.rule=Host(`ai.amr-token.example.com`)"
+      - "traefik.http.routers.ai.entrypoints=web,websecure"
+      - "traefik.http.routers.ai.tls.certresolver=myresolver"
     networks:
       - amr-network
 
-  nginx:
-    image: nginx:alpine
-    container_name: amr_nginx
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./frontend/dist:/usr/share/nginx/html:ro
-      - ./ssl:/etc/nginx/ssl:ro
+  #ollama:
+  #  image: ollama/ollama:latest
+  #  container_name: ollama
+  #  # Configurez les ports, volumes et variables d'environnement selon la documentation d'Ollama
+  #  ports:
+  #    - "11434:11434"
+  #  networks:
+  #    - amr-network
+
+  traefik:
+    image: traefik:v2.9
+    container_name: traefik
+    restart: always
+    command:
+      # Désactivez l'API insecure en production pour plus de sécurité
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # Configuration Let's Encrypt
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=your-email@example.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      # Fichier de configuration Traefik (TOML ou YAML)
+      - "./traefik/traefik.toml:/traefik.toml:ro"
+      # Stockage ACME pour les certificats Let's Encrypt
+      - "./traefik/acme.json:/acme.json"
     networks:
       - amr-network
-    depends_on:
-      - frontend
-      - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
 networks:
   amr-network:

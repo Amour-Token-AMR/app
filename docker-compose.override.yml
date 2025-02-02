@@ -4,7 +4,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: development
-    #command: sh -c "yarn install && yarn dev -H 0.0.0.0"
     environment:
       - NODE_ENV=development
       - DEBUG=true
@@ -12,10 +11,11 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-      - /app/.nuxt # Cache build artifacts
+      # Optionnel : monter le dossier .nuxt pour préserver le cache de build local si souhaité
+      - ./frontend/.nuxt:/app/.nuxt
     ports:
       - "3000:3000"
-      - "24678:24678" # Vite debug port
+      - "24678:24678"  # Port de debug pour Vite (si utilisé)
     tmpfs:
       - /tmp
 
@@ -32,10 +32,12 @@ services:
       - DB_URI=postgresql://${DEV_POSTGRES_USER}:${DEV_POSTGRES_PASSWORD}@db:5432/${DEV_POSTGRES_DB}
     volumes:
       - ./backend:/app
-      - ./backend/.ipython:/root/.ipython # IPython history
+      - ./backend/.ipython:/root/.ipython   # Pour conserver l'historique IPython
     ports:
       - "8000:8000"
-      - "5678:5678" # Debugpy port
+      - "5678:5678"  # Port de debug pour debugpy ou autres outils
+    tmpfs:
+      - /tmp
 
   db:
     environment:
@@ -70,17 +72,21 @@ services:
       - DEBUG=true
     volumes:
       - ./ai-model:/app
+      # Monter un cache local pour pip (ou autre) si nécessaire
       - ./ai-model/.cache:/root/.cache
     ports:
       - "8500:8500"
-      - "8501:8501" # Debug port
+      - "8501:8501"  # Port pour debug éventuel
 
   n8n:
+    image: n8nio/n8n
     environment:
       - N8N_DEV=true
       - N8N_HOST=0.0.0.0
     ports:
       - "5678:5678"
+    volumes:
+      - ./n8n:/home/node/.n8n
 
   elasticsearch:
     environment:
@@ -89,6 +95,8 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
+    tmpfs:
+      - /tmp
     ulimits:
       memlock:
         soft: -1
@@ -97,35 +105,40 @@ services:
   kibana:
     ports:
       - "5601:5601"
-  
+
   logviewer:
     build:
       context: ./logviewer
-      dockerfile: Dockerfile  # Voir ci-dessous pour un exemple de Dockerfile
+      dockerfile: Dockerfile  # Assurez-vous que ce Dockerfile inclut un stage 'development'
       target: development
     ports:
       - "9000:9000"
     volumes:
-      - ./app.log:/app.log  # Assurez-vous que le fichier de log est accessible
+      - ./app.log:/app.log  # Vérifiez que le fichier de log est accessible
     environment:
       - PYTHON_ENV=development
 
-  # Development support services
+  # Services de support développement
   mailhog:
     image: mailhog/mailhog
     ports:
-      - "8025:8025" # Web UI
-      - "1025:1025" # SMTP
+      - "8025:8025"  # Interface web
+      - "1025:1025"  # SMTP
 
   traefik:
-    image: traefik:v2.10
+    image: traefik:v2.9
     command:
-      - --api.insecure=true
-      - --providers.docker
-      - --entrypoints.web.address=:80
+      # En développement, activer l'API insecure pour faciliter le debug
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=true"
+      - "--entrypoints.web.address=:80"
     ports:
-      - "80:80"
-      - "8080:8080" # Dashboard
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - "8080:80"  # Mappez le port 80 du conteneur sur 8080 sur l'hôte
+    networks:
+      - amr-network
 
+networks:
+  amr-network:
+    driver: bridge
+    attachable: true
