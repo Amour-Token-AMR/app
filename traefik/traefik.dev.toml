@@ -1,5 +1,6 @@
 [log]
-  level = "DEBUG"          # Niveau de log plus verbeux pour le développement
+  #level = "DEBUG"          # Niveau de log plus verbeux pour le développement
+  level = "INFO"          # Niveau de log plus verbeux pour le développement
 
 [api]
   insecure = true          # Active l'API insecure pour faciliter le debug et l'accès au dashboard
