@@ -1,18 +1,19 @@
 {
-  "name": "corneet-wallet",
+  "name": "amr-app",
+  "version": "1.0.0",
+  "description": "$AMR The AMOUR Token Frontend",
+  "author": "@cubilizer",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start"
   },
   "dependencies": {
+    "@nuxtjs/axios": "^5.13.6",
+    "nuxt": "^2.15.8",
+    "gsap": "^3.12.2",
     "tsparticles": "^2.0.6",
-    "gsap": "^3.12.2"
-  },
-  "devDependencies": {
-    "vite": "^5.0.0"
+    "web3": "^1.10.0"
   }
 }

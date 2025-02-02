@@ -1,56 +1,46 @@
-<!-- components/WalletConnect.vue -->
 <template>
-  <div class="wallet-connect">
-    <button @click="connectWallet" v-if="!account">Se connecter avec MetaMask</button>
-    <div v-else>
-      <p>Connecté en tant que : {{ account }}</p>
-    </div>
-  </div>
-</template>
-
-<script>
-export default {
-  data() {
-    return {
-      account: null
-    }
-  },
-  methods: {
-    async connectWallet() {
-      try {
-        // Utilisation de l'instance web3 injectée
-        const accounts = await this.$web3.eth.requestAccounts()
-        this.account = accounts[0]
-        this.$emit('wallet-connected', this.account)
-      } catch (error) {
-        console.error('Erreur lors de la connexion du wallet:', error)
+    <button class="connect-wallet" @click="handleConnect">{{ buttonText }}</button>
+  </template>
+  
+  <script>
+  export default {
+    data() {
+      return {
+        buttonText: "Connect Wallet",
+        isConnected: false
+      };
+    },
+    methods: {
+      async handleConnect() {
+        if (!this.isConnected) {
+          if (typeof window.ethereum !== "undefined") {
+            try {
+              const accounts = await window.ethereum.request({
+                method: "eth_requestAccounts"
+              });
+              this.isConnected = true;
+              this.buttonText = "0x...." + accounts[0].slice(-4);
+              this.$emit("wallet-connected", accounts[0]);
+            } catch (error) {
+              console.error("User denied account access", error);
+            }
+          } else {
+            window.open("https://metamask.io/download.html", "_blank");
+          }
+        }
       }
     }
-  },
-  mounted() {
-    // Optionnel : vérifier si le wallet est déjà connecté
-    this.$web3.eth.getAccounts()
-      .then(accounts => {
-        if (accounts.length > 0) {
-          this.account = accounts[0]
-          this.$emit('wallet-connected', this.account)
-        }
-      })
+  };
+  </script>
+  
+  <style scoped>
+  .connect-wallet {
+    background-color: #ff4081;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
   }
-}
-</script>
-
-<style scoped>
-.wallet-connect {
-  margin: 1rem 0;
-}
-button {
-  background-color: #ff4081;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 5px;
-  cursor: pointer;
-}
-</style>
-
+  </style>
+  

@@ -1,91 +1,86 @@
-<!-- pages/ico.vue -->
 <template>
   <div>
-    <Header />
-    <section class="ico-section">
-      <h1>Participer à l'ICO</h1>
+    <div class="ico-content">
+      <h1>Participate in the ICO</h1>
       <WalletConnect @wallet-connected="onWalletConnected" />
-      <div v-if="account">
-        <p>Bienvenue, {{ account }} !</p>
-        <!-- Formulaire pour participer à l'ICO -->
+      <div v-if="walletAddress">
+        <p>Welcome, {{ walletAddress }}!</p>
         <form @submit.prevent="participateICO">
-          <label for="amount">Montant en ETH à investir :</label>
-          <input type="number" v-model="amount" id="amount" min="0.01" step="0.01" required />
-          <button type="submit">Participer</button>
+          <label for="amount">Amount in ETH to invest:</label>
+          <input
+            type="number"
+            v-model="amount"
+            id="amount"
+            min="0.01"
+            step="0.01"
+            required
+          />
+          <button type="submit">Participate</button>
         </form>
         <p v-if="txStatus">{{ txStatus }}</p>
       </div>
-    </section>
-    <Footer />
+    </div>
   </div>
 </template>
 
 <script>
-import WalletConnect from '~/components/WalletConnect.vue'
-import Header from '~/components/Header.vue'
-import Footer from '~/components/Footer.vue'
+import WalletConnect from "~/components/WalletConnect.vue";
 
 export default {
-  components: { WalletConnect, Header, Footer },
+  components: { WalletConnect },
   data() {
     return {
-      account: null,
+      walletAddress: null,
       amount: 0,
-      txStatus: ''
-    }
+      txStatus: ""
+    };
   },
   methods: {
-    onWalletConnected(account) {
-      this.account = account
+    onWalletConnected(address) {
+      this.walletAddress = address;
     },
     async participateICO() {
       try {
-        // Exemple d'appel à une fonction de smart contract (le détail de l'ABI et de l'adresse doit être renseigné)
-        const contractABI = [ /* ABI du smart contract */ ]
-        const contractAddress = '0xYourContractAddress'
-        const contract = new this.$web3.eth.Contract(contractABI, contractAddress)
-        
-        // Exemple : appel à la fonction 'buyTokens' du contrat
-        const tx = await contract.methods.buyTokens(this.account)
-          .send({ from: this.account, value: this.$web3.utils.toWei(this.amount.toString(), 'ether') })
-        
-        this.txStatus = 'Transaction réussie : ' + tx.transactionHash
+        const response = await this.$axios.$post("/ico/participate", {
+          walletAddress: this.walletAddress,
+          amount: this.amount
+        });
+        this.txStatus = "Transaction successful: " + response.transactionId;
       } catch (error) {
-        console.error('Erreur lors de la participation à l\'ICO:', error)
-        this.txStatus = 'Erreur de transaction'
+        console.error("ICO participation error:", error);
+        this.txStatus = "Transaction failed.";
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>
-.ico-section {
-  padding: 2rem;
+.ico-content {
+  padding: 100px 20px;
   text-align: center;
 }
 form {
-  margin: 2rem auto;
+  margin: 20px auto;
   max-width: 400px;
   display: flex;
   flex-direction: column;
 }
 label {
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
 }
 input {
-  padding: 0.5rem;
-  margin-bottom: 1rem;
+  padding: 8px;
+  margin-bottom: 12px;
   border: 1px solid #ccc;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 button {
+  padding: 10px;
   background-color: #ff4081;
   color: white;
   border: none;
-  padding: 0.75rem;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
 }
 </style>
-

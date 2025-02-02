@@ -1,176 +1,195 @@
-version: "3.9"
-
-services:
-  # -----------------------------
-  # Frontend Nuxt/Vue
-  # -----------------------------
-  frontend:
-    build: ./frontend
-    container_name: amr_frontend
-    working_dir: /app
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: sh -c "yarn install && yarn build && yarn start"
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=${NODE_ENV}
-    depends_on:
-      - api
-    networks:
-      - amr-network
-
-  # -----------------------------
-  # Backend FastAPI/Python
-  # -----------------------------
-  api:
-    build: ./backend
-    container_name: amr_api
-    working_dir: /app
-    volumes:
-      - ./backend:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-    ports:
-      - "8000:8000"
-    environment:
-      - PYTHON_ENV=${PYTHON_ENV}
-      - DB_URI=${DB_URI}
-      - REDIS_URI=${REDIS_URI}
-      - JWT_SECRET=${JWT_SECRET}
-    depends_on:
-      - db
-      - redis
-    networks:
-      - amr-network
-
-  # -----------------------------
-  # n8n – Workflow Automation
-  # -----------------------------
-  n8n:
-    image: n8nio/n8n
-    container_name: amr_n8n
-    restart: always
-    volumes:
-      - ./n8n:/home/node/.n8n
-    env_file:
-      - .env.n8n
-    ports:
-      - "5678:5678"
-    environment:
-      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE}
-      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
-      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=db
-      - DB_POSTGRESDB_PORT=5432
-      - DB_POSTGRESDB_DATABASE=amr_n8n
-      - DB_POSTGRESDB_USER=${POSTGRES_USER}
-      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
-    depends_on:
-      - db
-    networks:
-      - amr-network
-
-  # -----------------------------
-  # PostgreSQL Database
-  # -----------------------------
-  db:
-    image: postgres:14-alpine
-    container_name: amr_db
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-    ports:
-      - "5432:5432"
-    networks:
-      - amr-network
-
-  # -----------------------------
-  # Redis Cache & Broker
-  # -----------------------------
-  redis:
-    image: redis:7-alpine
-    container_name: amr_redis
-    ports:
-      - "6379:6379"
-    networks:
-      - amr-network
-
-  # -----------------------------
-  # Log Management – ELK Stack (Exemple simplifié)
-  # -----------------------------
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.7.0
-    container_name: amr_logstash
-    volumes:
-      - ./logstash/config:/usr/share/logstash/config
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
-    ports:
-      - "5044:5044"
-    networks:
-      - amr-network
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.7.0
-    container_name: amr_elasticsearch
-    environment:
-      - discovery.type=single-node
-    ports:
-      - "9200:9200"
-    networks:
-      - amr-network
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.7.0
-    container_name: amr_kibana
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-    networks:
-      - amr-network
-
-  # -----------------------------
-  # Service IA – Traitement et Inference
-  # -----------------------------
-  ai_model:
-    build: ./ai-model
-    container_name: amr_ai_model
-    working_dir: /app
-    volumes:
-      - ./ai-model:/app
-    command: sh -c "pip install -r requirements.txt && python app.py"
-    ports:
-      - "8500:8500"
-    environment:
-      - MODEL_ENV=${MODEL_ENV}
-    networks:
-      - amr-network
-
-  # -----------------------------
-  # Reverse Proxy – Nginx
-  # -----------------------------
-  nginx:
-    image: nginx:alpine
-    container_name: amr_nginx
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - frontend
-      - api
-    networks:
-      - amr-network
-
-networks:
-  amr-network:
-    driver: bridge
-
-volumes:
-  db-data:
+{
+  "version": "3.9",
+  "services": {
+    "frontend": {
+      "build": "./frontend",
+      "container_name": "amr_frontend",
+      "working_dir": "/app",
+      "volumes": [
+        "./frontend:/app",
+        "/app/node_modules"
+      ],
+      "command": "sh -c \"yarn install && yarn build && yarn start\"",
+      "ports": [
+        "3000:3000"
+      ],
+      "environment": [
+        "NODE_ENV=${NODE_ENV}"
+      ],
+      "depends_on": [
+        "api"
+      ],
+      "networks": [
+        "amr-network"
+      ]
+    },
+    "api": {
+      "build": "./backend",
+      "container_name": "amr_api",
+      "working_dir": "/app",
+      "volumes": [
+        "./backend:/app"
+      ],
+      "command": "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",
+      "ports": [
+        "8000:8000"
+      ],
+      "environment": [
+        "PYTHON_ENV=${PYTHON_ENV}",
+        "DB_URI=${DB_URI}",
+        "REDIS_URI=${REDIS_URI}",
+        "JWT_SECRET=${JWT_SECRET}"
+      ],
+      "depends_on": [
+        "db",
+        "redis"
+      ],
+      "networks": [
+        "amr-network"
+      ]
+    },
+    "n8n": {
+      "image": "n8nio/n8n",
+      "container_name": "amr_n8n",
+      "restart": "always",
+      "volumes": [
+        "./n8n:/home/node/.n8n"
+      ],
+      "env_file": [
+        ".env.n8n"
+      ],
+      "ports": [
+        "5678:5678"
+      ],
+      "environment": [
+        "N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE}",
+        "N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}",
+        "N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}",
+        "DB_TYPE=postgresdb",
+        "DB_POSTGRESDB_HOST=db",
+        "DB_POSTGRESDB_PORT=5432",
+        "DB_POSTGRESDB_DATABASE=amr_n8n",
+        "DB_POSTGRESDB_USER=${POSTGRES_USER}",
+        "DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}"
+      ],
+      "depends_on": [
+        "db"
+      ],
+      "networks": [
+        "amr-network"
+      ]
+    },
+    "db": {
+      "image": "postgres:14-alpine",
+      "container_name": "amr_db",
+      "volumes": [
+        "db-data:/var/lib/postgresql/data"
+      ],
+      "environment": [
+        "POSTGRES_USER=${POSTGRES_USER}",
+        "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}",
+        "POSTGRES_DB=${POSTGRES_DB}"
+      ],
+      "ports": [
+        "5432:5432"
+      ],
+      "networks": [
+        "amr-network"
+      ]
+    },
+    "redis": {
+      "image": "redis:7-alpine",
+      "container_name": "amr_redis",
+      "ports": [
+        "6379:6379"
+      ],
+      "networks": [
+        "amr-network"
+      ]
+    },
+    "logstash": {
+      "image": "docker.elastic.co/logstash/logstash:8.7.0",
+      "container_name": "amr_logstash",
+      "volumes": [
+        "./logstash/config:/usr/share/logstash/config",
+        "./logstash/pipeline:/usr/share/logstash/pipeline"
+      ],
+      "ports": [
+        "5044:5044"
+      ],
+      "networks": [
+        "amr-network"
+      ]
+    },
+    "elasticsearch": {
+      "image": "docker.elastic.co/elasticsearch/elasticsearch:8.7.0",
+      "container_name": "amr_elasticsearch",
+      "environment": [
+        "discovery.type=single-node"
+      ],
+      "ports": [
+        "9200:9200"
+      ],
+      "networks": [
+        "amr-network"
+      ]
+    },
+    "kibana": {
+      "image": "docker.elastic.co/kibana/kibana:8.7.0",
+      "container_name": "amr_kibana",
+      "ports": [
+        "5601:5601"
+      ],
+      "depends_on": [
+        "elasticsearch"
+      ],
+      "networks": [
+        "amr-network"
+      ]
+    },
+    "ai_model": {
+      "build": "./ai-model",
+      "container_name": "amr_ai_model",
+      "working_dir": "/app",
+      "volumes": [
+        "./ai-model:/app"
+      ],
+      "command": "sh -c \"pip install -r requirements.txt && python app.py\"",
+      "ports": [
+        "8500:8500"
+      ],
+      "environment": [
+        "MODEL_ENV=${MODEL_ENV}"
+      ],
+      "networks": [
+        "amr-network"
+      ]
+    },
+    "nginx": {
+      "image": "nginx:alpine",
+      "container_name": "amr_nginx",
+      "volumes": [
+        "./nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+      ],
+      "ports": [
+        "80:80",
+        "443:443"
+      ],
+      "depends_on": [
+        "frontend",
+        "api"
+      ],
+      "networks": [
+        "amr-network"
+      ]
+    }
+  },
+  "networks": {
+    "amr-network": {
+      "driver": "bridge"
+    }
+  },
+  "volumes": {
+    "db-data": {}
+  }
+}
