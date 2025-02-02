@@ -44,6 +44,8 @@ services:
       - POSTGRES_USER=${DEV_POSTGRES_USER}
       - POSTGRES_PASSWORD=${DEV_POSTGRES_PASSWORD}
       - POSTGRES_DB=${DEV_POSTGRES_DB}
+    volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     healthcheck:
@@ -84,7 +86,7 @@ services:
       - N8N_DEV=true
       - N8N_HOST=0.0.0.0
     ports:
-      - "5678:5678"
+      - "5679:5678"
     volumes:
       - ./n8n:/home/node/.n8n
 
@@ -127,6 +129,8 @@ services:
 
   traefik:
     image: traefik:v2.9
+    volumes:
+      - "./traefik/traefik.dev.toml:/traefik.toml:ro"
     command:
       # En développement, activer l'API insecure pour faciliter le debug
       - "--api.insecure=true"

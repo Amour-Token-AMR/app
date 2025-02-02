@@ -1,0 +1,14 @@
+[log]
+  level = "DEBUG"          # Niveau de log plus verbeux pour le développement
+
+[api]
+  insecure = true          # Active l'API insecure pour faciliter le debug et l'accès au dashboard
+
+[providers]
+  [providers.docker]
+    endpoint = "unix:///var/run/docker.sock"
+    exposedByDefault = true   # En développement, exposer tous les conteneurs facilite le test
+
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"

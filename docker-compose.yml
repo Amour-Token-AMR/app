@@ -12,7 +12,7 @@ services:
       - API_BASE_URL=http://backend:8000
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`amr-token.example.com`)"
+      - "traefik.http.routers.frontend.rule=Host(`${HOST_DOMAIN}`)"
       - "traefik.http.routers.frontend.entrypoints=web,websecure"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
     networks:
@@ -41,7 +41,7 @@ services:
       - WEB_CONCURRENCY=4
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`api.amr-token.example.com`)"
+      - "traefik.http.routers.backend.rule=Host(`api.${HOST_DOMAIN}`)"
       - "traefik.http.routers.backend.entrypoints=web,websecure"
       - "traefik.http.routers.backend.tls.certresolver=myresolver"
     #ports:
@@ -63,8 +63,8 @@ services:
     image: n8nio/n8n
     container_name: amr_n8n
     restart: always
-    #ports:
-    #  - "5678:5678"
+    ports:
+      - "5679:5678"
     env_file:
       - ./n8n/.env.n8n
     environment:
@@ -74,9 +74,10 @@ services:
       - DB_POSTGRESDB_DATABASE=amr_n8n
       - DB_POSTGRESDB_USER=${POSTGRES_USER}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.n8n.rule=Host(`n8n.amr-token.example.com`)"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.${HOST_DOMAIN}`)"
       - "traefik.http.routers.n8n.entrypoints=web,websecure"
       - "traefik.http.routers.n8n.tls.certresolver=myresolver"
     volumes:
@@ -90,11 +91,14 @@ services:
     image: postgres:14-alpine
     container_name: amr_db
     volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
       - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
+      - LANG=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
     networks:
       - amr-network
     healthcheck:
@@ -156,7 +160,7 @@ services:
       - MODEL_ENV=production
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ai.rule=Host(`ai.amr-token.example.com`)"
+      - "traefik.http.routers.ai.rule=Host(`ai.${HOST_DOMAIN}`)"
       - "traefik.http.routers.ai.entrypoints=web,websecure"
       - "traefik.http.routers.ai.tls.certresolver=myresolver"
     networks:
@@ -173,7 +177,7 @@ services:
 
   traefik:
     image: traefik:v2.9
-    container_name: traefik
+    container_name: amr_traefik
     restart: always
     command:
       # Désactivez l'API insecure en production pour plus de sécurité
@@ -185,7 +189,7 @@ services:
       # Configuration Let's Encrypt
       - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.myresolver.acme.email=your-email@example.com"
+      - "--certificatesresolvers.myresolver.acme.email=0@${HOST_DOMAIN}"
       - "--certificatesresolvers.myresolver.acme.storage=/acme.json"
     ports:
       - "80:80"

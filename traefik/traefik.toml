@@ -1,0 +1,25 @@
+[log]
+  level = "INFO"           # Niveau de log (peut être ajusté à DEBUG si besoin)
+
+[accessLog]
+
+[api]
+  insecure = false         # Désactive l'API insecure pour la production
+  dashboard = true         # Active le dashboard (accessible si vous le souhaitez via un réseau sécurisé)
+
+[providers]
+  [providers.docker]
+    endpoint = "unix:///var/run/docker.sock"
+    exposedByDefault = false  # Seuls les conteneurs explicitement marqués seront exposés via Traefik
+
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+  [entryPoints.websecure]
+    address = ":443"
+
+[certificatesResolvers.myresolver.acme]
+  email = "0@amour-token.io"   # Remplacez par votre e-mail
+  storage = "/acme.json"
+  [certificatesResolvers.myresolver.acme.httpChallenge]
+    entryPoint = "web"
