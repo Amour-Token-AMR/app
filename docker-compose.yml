@@ -83,7 +83,8 @@ services:
     volumes:
       - ./n8n:/home/node/.n8n
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - amr-network
 
@@ -166,14 +167,14 @@ services:
     networks:
       - amr-network
 
-  #ollama:
-  #  image: ollama/ollama:latest
-  #  container_name: ollama
-  #  # Configurez les ports, volumes et variables d'environnement selon la documentation d'Ollama
-  #  ports:
-  #    - "11434:11434"
-  #  networks:
-  #    - amr-network
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    # Configurez les ports, volumes et variables d'environnement selon la documentation d'Ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - amr-network
 
   traefik:
     image: traefik:v2.9
