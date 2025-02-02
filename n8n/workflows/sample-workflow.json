@@ -1,0 +1,41 @@
+{
+  "name": "ICO Participation Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook/ico-participation",
+        "responseMode": "lastNode"
+      },
+      "id": "1",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "no-reply@amr-token.com",
+        "toEmail": "={{$json[\"data\"][\"userEmail\"] || \"support@amr-token.com\"}}",
+        "subject": "Confirmation de participation à l'ICO",
+        "text": "Bonjour,\n\nVotre participation à l'ICO a bien été enregistrée. \nTransaction ID: {{$json[\"data\"][\"transactionId\"]}}\nMontant investi: {{$json[\"data\"][\"amount\"]}} ETH\n\nMerci,\nL'équipe AMR"
+      },
+      "id": "2",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [500, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "editor.theme": "dark",
+  "editor.fontSize": 14,
+  "editor.defaultView": "workflow",
+  "execution.timeout": 3600
+}
