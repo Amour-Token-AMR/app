@@ -1,0 +1,11 @@
+{
+    "model_name": "Fake AI Model",
+    "version": "1.0",
+    "approval_threshold": 0.5,
+    "fake_response": {
+      "result": "approved",
+      "confidence": 0.95,
+      "message": "User behavior validated for ICO participation."
+    }
+  }
+  

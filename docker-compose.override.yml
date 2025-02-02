@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  frontend:
+    # Utilisation du mode développement pour Nuxt
+    command: sh -c "yarn install && yarn dev"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  backend:
+    # Activation du mode reload pour uvicorn
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - PYTHON_ENV=development
+    volumes:
+      - ./backend:/app
+
+  ai_model:
+    # En développement, on suppose que Ollama est installé sur l'hôte
+    environment:
+      - MODEL_ENV=development
+      - OLLAMA_API_URL=http://host.docker.internal:11434/run
+      - OLLAMA_MODEL=amour-model-dev
