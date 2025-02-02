@@ -1,26 +1,131 @@
-version: "3.9"
-
 services:
   frontend:
-    # Utilisation du mode développement pour Nuxt
-    command: sh -c "yarn install && yarn dev"
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    #command: sh -c "yarn install && yarn dev -H 0.0.0.0"
     environment:
       - NODE_ENV=development
+      - DEBUG=true
+      - API_BASE_URL=http://localhost:8000
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - /app/.nuxt # Cache build artifacts
+    ports:
+      - "3000:3000"
+      - "24678:24678" # Vite debug port
+    tmpfs:
+      - /tmp
 
   backend:
-    # Activation du mode reload pour uvicorn
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app
     environment:
       - PYTHON_ENV=development
+      - DEBUG=true
+      - PYTHONBREAKPOINT=ipdb.set_trace
+      - DB_URI=postgresql://${DEV_POSTGRES_USER}:${DEV_POSTGRES_PASSWORD}@db:5432/${DEV_POSTGRES_DB}
     volumes:
       - ./backend:/app
+      - ./backend/.ipython:/root/.ipython # IPython history
+    ports:
+      - "8000:8000"
+      - "5678:5678" # Debugpy port
+
+  db:
+    environment:
+      - POSTGRES_USER=${DEV_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${DEV_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${DEV_POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DEV_POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 5s
+      timeout: 3s
 
   ai_model:
-    # En développement, on suppose que Ollama est installé sur l'hôte
+    build:
+      context: ./ai-model
+      dockerfile: Dockerfile
+      target: development
     environment:
       - MODEL_ENV=development
       - OLLAMA_API_URL=http://host.docker.internal:11434/run
       - OLLAMA_MODEL=amour-model-dev
+      - DEBUG=true
+    volumes:
+      - ./ai-model:/app
+      - ./ai-model/.cache:/root/.cache
+    ports:
+      - "8500:8500"
+      - "8501:8501" # Debug port
+
+  n8n:
+    environment:
+      - N8N_DEV=true
+      - N8N_HOST=0.0.0.0
+    ports:
+      - "5678:5678"
+
+  elasticsearch:
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  kibana:
+    ports:
+      - "5601:5601"
+  
+  logviewer:
+    build:
+      context: ./logviewer
+      dockerfile: Dockerfile  # Voir ci-dessous pour un exemple de Dockerfile
+      target: development
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./app.log:/app.log  # Assurez-vous que le fichier de log est accessible
+    environment:
+      - PYTHON_ENV=development
+
+  # Development support services
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025" # Web UI
+      - "1025:1025" # SMTP
+
+  traefik:
+    image: traefik:v2.10
+    command:
+      - --api.insecure=true
+      - --providers.docker
+      - --entrypoints.web.address=:80
+    ports:
+      - "80:80"
+      - "8080:8080" # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+

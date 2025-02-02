@@ -1,5 +1,89 @@
-nodes_modules/
-venv/
-.env
+# ====================================================
+# Fichiers et dossiers système (macOS, Windows, Linux)
+# ====================================================
 .DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# ====================================================
+# Node / NPM / Yarn (Frontend)
+# ====================================================
+node_modules/
+# Dossier de build (pour Nuxt)
+.nuxt/
+dist/
+.build/
+.cache/
+# Fichiers de log de Node
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ====================================================
+# Python (Backend, AI model)
+# ====================================================
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Dossiers de build et distribution
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# Environnements virtuels
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Fichiers compilés ou partiels
+*.so
+
+# ====================================================
+# Fichiers d'environnement et secrets
+# ====================================================
+# On ignore les fichiers d'environnement sensibles
+.env
+.env.*
+# Vous pouvez versionner un exemple, par exemple .env.example, en le créant manuellement
+
+# ====================================================
+# Docker et Orchestration
+# ====================================================
+# Ne pas ignorer les Dockerfiles ou docker-compose.yml, on les versionne
+# Cependant, on ignore les fichiers générés ou les overrides locaux si besoin
+.dockerignore
+
+# Parfois, vous ne souhaitez pas versionner certains fichiers override locaux (ex. docker-compose.override.yml)
+# Décommentez la ligne ci-dessous si vous préférez ne pas versionner vos overrides de développement
+# docker-compose.override.yml
+
+# ====================================================
+# Logs et fichiers temporaires
+# ====================================================
+*.log
+logs/
+*.sqlite3
+*.db
+
+# ====================================================
+# Autres fichiers sensibles ou spécifiques
+# ====================================================
+# Clés privées, certificats, et autres secrets
 *.pem
+*.key
+*.crt
+
+# Fichiers temporaires d'éditeurs
+*.tmp
+*.temp

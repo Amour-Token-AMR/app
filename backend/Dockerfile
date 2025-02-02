@@ -1,58 +1,70 @@
-# backend/Dockerfile
-# Builder stage
-FROM python:3.10-slim as builder
+# -----------------------------
+# Builder Stage: install system dependencies, create venv, install Python packages, copy source code
+FROM python:3.10-slim AS builder
 
 WORKDIR /app
 
-# Install build dependencies
+# Installer les dépendances système
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+  && apt-get install -y --no-install-recommends debian-archive-keyring \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends gcc libpq-dev curl \
+  && rm -rf /var/lib/apt/lists/*
 
-# Create virtual environment
+# Créer un environnement virtuel et mettre à jour le PATH
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install Python dependencies
+# Copier le fichier des dépendances et installer les packages Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip==23.2.1 \
     && pip install --no-cache-dir -r requirements.txt
 
-# Runtime stage
-FROM python:3.10-slim
+# Copier le code de l'application dans le stage builder
+COPY . .
 
-WORKDIR /app
+# -----------------------------
+# Production Stage
+FROM builder AS production
 
-# Install runtime dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends libpq5 curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy virtual environment from builder
-COPY --from=builder /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    WEB_CONCURRENCY=4
-
-# Create and switch to non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
-RUN chown appuser:appuser /app
+# Création d'un utilisateur non-root pour la sécurité
+RUN groupadd -r appuser && useradd -r -g appuser appuser && \
+    chown -R appuser:appuser /app && \
+    chown -R appuser:appuser /opt/venv
 USER appuser
 
-# Copy application code (ensure proper ownership)
-COPY --chown=appuser:appuser . .
+# Définir quelques variables d'environnement pour améliorer la lisibilité et la fiabilité
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
 
-# Expose port and set healthcheck
+# Exposer le port 8000
 EXPOSE 8000
+
+# Définir une vérification de santé (vérifie l'endpoint /health)
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl --fail http://localhost:8000/health || exit 1
 
-# Run application with Gunicorn
-CMD ["gunicorn", \
-    "--worker-class", "uvicorn.workers.UvicornWorker", \
-    "--bind", "0.0.0.0:8000", \
-    "--workers", "$WEB_CONCURRENCY", \
-    "app.main:app"]
+# Utiliser une commande shell pour permettre l'expansion de la variable WEB_CONCURRENCY
+# WEB_CONCURRENCY peut être défini via l'environnement; sinon, la valeur par défaut 4 est utilisée
+ENV WEB_CONCURRENCY=4
+CMD ["/bin/sh", "-c", "gunicorn --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --workers ${WEB_CONCURRENCY:-4} app.main:app"]
+
+# -----------------------------
+# Development Stage
+FROM builder AS development
+
+# Définir des variables pour le mode développement
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Création d'un utilisateur non-root pour le développement également
+RUN groupadd -r appuser && useradd -r -g appuser appuser && \
+    chown -R appuser:appuser /app && \
+    chown -R appuser:appuser /opt/venv
+USER appuser
+
+# Exposer le port 8000
+EXPOSE 8000
+
+# Lancer Uvicorn avec l'option --reload pour activer le hot-reload en développement
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
