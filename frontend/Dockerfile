@@ -7,8 +7,8 @@ FROM node:23.2.0-alpine3.19 AS base
 WORKDIR /app
 
 # Définir les variables d'environnement pour npm
-ENV NODE_ENV=production
-ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NODE_ENV=development
+#ENV NPM_CONFIG_UPDATE_NOTIFIER=false
 
 # Installer les dépendances système requises pour les modules natifs
 RUN apk add --no-cache libc6-compat python3 make g++
@@ -56,7 +56,8 @@ USER node
 
 EXPOSE 3000
 ENV NITRO_PORT=3000
-ENV NODE_ENV=production
+ENV NODE_ENV=development
+#ENV NODE_ENV=production
 
 CMD ["node", ".output/server/index.mjs"]
 
