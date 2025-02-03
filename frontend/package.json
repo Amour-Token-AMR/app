@@ -5,15 +5,51 @@
 	"author": "@cubilizer",
 	"private": true,
 	"scripts": {
-		"dev": "nuxt",
+		"dev": "nuxt dev",
 		"build": "nuxt build",
-		"start": "nuxt start"
+		"start": "nuxt start",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview",
+		"lint": "eslint .",
+		"format": "prettier --write .",
+		"build:analyze": "NODE_ENV=production NUXT_ANALYZE=true nuxt build"
 	},
 	"dependencies": {
 		"@nuxtjs/axios": "^5.13.6",
-		"nuxt": "^3.15.4",
-		"gsap": "^3.12.7",
-		"tsparticles": "^3.8.1",
-		"web3": "^4.16.0"
+		"axios": "^1.7.9",
+		"defu": "^6.1.3",
+		"gsap": "^3.12.8",
+		"nuxt": "^3.12.2",
+		"ofetch": "^1.3.3",
+		"tsparticles": "^3.12.0",
+		"unhead": "^1.13.3",
+		"vue": "^3.4.27",
+		"web3": "^4.21.1"
+	},
+	"devDependencies": {
+		"@nuxt/devtools": "^1.1.4",
+		"@nuxt/image": "^2.0.0",
+		"@nuxt/typescript-build": "^3.4.0",
+		"@nuxtjs/eslint-module": "^4.2.0",
+		"@nuxtjs/tailwindcss": "^6.11.5",
+		"autoprefixer": "^10.4.19",
+		"eslint": "^8.57.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-nuxt": "^5.0.0",
+		"postcss": "^8.4.38",
+		"prettier": "^3.2.5"
+	},
+	"browserslist": [
+		"last 3 Chrome versions",
+		"last 3 Firefox versions",
+		"last 3 Safari versions",
+		"last 3 Edge versions"
+	],
+	"overrides": {
+		"node-fetch": "^2.6.12"
+	},
+	"engines": {
+		"node": ">=18.0.0",
+		"npm": ">=9.0.0"
 	}
 }

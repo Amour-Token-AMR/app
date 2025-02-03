@@ -1,7 +1,7 @@
 # backend/app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import health, auth, ico, blockchain
+from app.routes import health #, auth, ico, blockchain
 from app.core.database import engine, Base
 import logging
 
@@ -26,9 +26,9 @@ Base.metadata.create_all(bind=engine)
 
 # Inclusion des routeurs
 app.include_router(health.router, prefix="/api/v1")
-app.include_router(auth.router, prefix="/api/v1")
-app.include_router(ico.router, prefix="/api/v1")
-app.include_router(blockchain.router, prefix="/api/v1")
+#app.include_router(auth.router, prefix="/api/v1")
+#app.include_router(ico.router, prefix="/api/v1")
+#app.include_router(blockchain.router, prefix="/api/v1")
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)

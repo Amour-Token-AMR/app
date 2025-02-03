@@ -35,7 +35,7 @@ services:
       - ./backend/.ipython:/root/.ipython   # Pour conserver l'historique IPython
     ports:
       - "8000:8000"
-      - "5678:5678"  # Port de debug pour debugpy ou autres outils
+    #  - "5678:5678"  # Port de debug pour debugpy ou autres outils
     tmpfs:
       - /tmp
 
